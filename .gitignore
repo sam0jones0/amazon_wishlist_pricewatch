@@ -223,3 +223,9 @@ fabric.properties
 /.idea/.gitignore
 
 /.idea/amazon-wishlist-pricewatch.iml
+/pricewatch/scratch.py
+/pricewatch/test.json
+/pricewatch/test.py
+/pricewatch/wishlist_items.json
+/pricewatch/wishlist_items1.json
+/pricewatch/config2.json
