@@ -8,16 +8,18 @@ logger.setLevel(logging.INFO)
 
 # Create handlers.
 console_handler = logging.StreamHandler()
-file_handler = RotatingFileHandler("pricewatch.log",
-                                   mode="a+",
-                                   maxBytes=2*1024*1024,  # 2MB max log size.
-                                   backupCount=5)  # Keep max 5 historical logs.
+file_handler = RotatingFileHandler(
+    "pricewatch.log",
+    mode="a+",
+    maxBytes=2 * 1024 * 1024,  # 2MB max log size.
+    backupCount=5,  # Keep max 5 historical logs.
+)
 console_handler.setLevel(logging.INFO)
 file_handler.setLevel(logging.INFO)
 
 # Create formatters and add to handlers.
 console_format = logging.Formatter(f"%(levelname)s - %(message)s")
-file_format = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+file_format = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 console_handler.setFormatter(console_format)
 file_handler.setFormatter(file_format)
 
