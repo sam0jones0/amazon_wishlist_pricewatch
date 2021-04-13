@@ -15,7 +15,7 @@ from typing import (
 from urllib.parse import urlparse
 
 from logger import logger
-from my_types import WishlistItem, WishlistDict
+from my_types import WishlistItem
 
 
 def get_config() -> Dict:
@@ -132,12 +132,21 @@ def send_notification(
     text: Optional[str] = None,
     html: Optional[str] = None,
 ) -> None:
-    """TODO"""
+    """
+
+    Args:
+        wishlist_item_list ():
+        text ():
+        html ():
+
+    Returns:
+
+    """
     if wishlist_item_list:
         text, html = parse_txt_html(wishlist_item_list)
-    else:
-        assert text and html, (
-            "text and html should be provided if " "wishlist_item_list is not."
+    elif not (text and html):
+        raise ValueError(
+            "text and html should be provided if wishlist_item_list is not."
         )
     nm = config["general"]["notification_mode"]
     if "1" in nm:

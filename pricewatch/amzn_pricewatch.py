@@ -16,10 +16,29 @@ from my_types import WishlistItem, WishlistDict
 
 
 class PriceWatch:
-    """TODO"""
+    """A class to manage interaction with Amazon wishlists.
+
+    Provides methods to create Wishlist objects by sending web requests to a
+    public wishlist URL and parsing the response into a custom Wishlist object.
+    Wishlists can then be compared with results from previous runs to determine
+    if an item's price has been reduced.
+
+    Attributes:
+        config: A dictionary of configuration values loaded from config.json.
+        wishlist: A Wishlist class instance to store items retrieved and parsed
+            during the current run.
+        json_man: A JsonManager instance to access wishlist data from previous
+            runs, and to store data for the next run.
+        headers: Headers dictionary to be used in web requests. A user specified
+            User-Agent is retrieved from config.json.
+        session: A requests.session instance to persist parameters/cookies
+            across requests.
+        wishlist_url: The wishlist URL used for the initial request.
+        wishlist_domain: The domain of the wishlist URL to be concatenated with
+            additional page (pagination) paths.
+    """
 
     def __init__(self):
-        """"""
         self.config = notify.get_config()
         self.wishlist = Wishlist()
         self.json_man = JsonManager()
@@ -38,17 +57,27 @@ class PriceWatch:
         self.wishlist_domain = urlparse(self.wishlist_url).netloc
 
     def request_page(self, wishlist_url: Optional[str] = None) -> requests.Response:
-        """
+        """Requests a wishlist page and return the response.
+
+        If no argument for wishlist_url is supplied, it is assumed a request to
+        the first wishlist page is being made, which is retrieved from the class
+        wishlist_url attribute. In the event of a failed request a notification
+        is triggered to the user via the notification methods specified in
+        config.json.
 
         Args:
-            wishlist_url ():
+            wishlist_url: Optional; The wishlist page URL to request.
 
         Returns:
+            A requests.Response object if the request is successful.
 
+        Raises:
+            requests.Timeout: The request timed out.
+            requests.URLRequired: An invalid URL was supplied.
+            requests.ConnectionError: User's IP may be blocked / bot detection.
         """
 
         if not wishlist_url:
-            # Requesting first wishlist page.
             wishlist_url = self.wishlist_url
         try:
             res = self.session.get(wishlist_url, timeout=10)
