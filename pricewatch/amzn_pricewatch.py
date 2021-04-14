@@ -18,20 +18,20 @@ from my_types import WishlistItem, WishlistDict
 class PriceWatch:
     """A class to manage interaction with Amazon wishlists.
 
-    Provides methods to create Wishlist objects by sending web requests to a
-    public wishlist URL and parsing the response into a custom Wishlist object.
-    Wishlists can then be compared with results from previous runs to determine
-    if an item's price has been reduced.
+    Provides methods to create `Wishlist` objects by sending web requests to a
+    public wishlist URL and parsing the response into a custom `Wishlist` object.
+    `Wishlist` instances can then be compared with results from previous runs to
+    determine if an item's price has been reduced.
 
     Attributes:
-        config: A dictionary of configuration values loaded from config.json.
-        wishlist: A Wishlist class instance to store items retrieved and parsed
+        config: A dictionary of configuration values loaded from `config.json`.
+        wishlist: A `Wishlist` class instance to store items retrieved and parsed
             during the current run.
-        json_man: A JsonManager instance to access wishlist data from previous
+        json_man: A `JsonManager` instance to access wishlist data from previous
             runs, and to store data for the next run.
         headers: Headers dictionary to be used in web requests. A user specified
-            User-Agent is retrieved from config.json.
-        session: A requests.session instance to persist parameters/cookies
+            `User-Agent` is retrieved from `config.json`.
+        session: A `requests.session` instance to persist parameters/cookies
             across requests.
         wishlist_url: The wishlist URL used for the initial request.
         wishlist_domain: The domain of the wishlist URL to be concatenated with
@@ -39,6 +39,7 @@ class PriceWatch:
     """
 
     def __init__(self):
+        """Inits the PriceWatch class."""
         self.config = notify.get_config()
         self.wishlist = Wishlist()
         self.json_man = JsonManager()
@@ -57,26 +58,26 @@ class PriceWatch:
         self.wishlist_domain = urlparse(self.wishlist_url).netloc
 
     def request_page(self, wishlist_url: Optional[str] = None) -> requests.Response:
-        """Requests a wishlist page and return the response.
+        """Request a wishlist page and return the response.
 
-        If no argument for wishlist_url is supplied, it is assumed a request to
+        If no argument for ``wishlist_url`` is supplied, it is assumed a request to
         the first wishlist page is being made, which is retrieved from the class
-        wishlist_url attribute. In the event of a failed request a notification
+        `wishlist_url` attribute. In the event of a failed request a notification
         is triggered to the user via the notification methods specified in
-        config.json.
+        `config.json` and an exception is raised.
 
         Args:
             wishlist_url: Optional; The wishlist page URL to request.
 
         Returns:
-            A requests.Response object if the request is successful.
+            A `requests.Response` object of the wishlist page if the request
+            is successful.
 
         Raises:
             requests.Timeout: The request timed out.
             requests.URLRequired: An invalid URL was supplied.
             requests.ConnectionError: User's IP may be blocked / bot detection.
         """
-
         if not wishlist_url:
             wishlist_url = self.wishlist_url
         try:
@@ -90,7 +91,20 @@ class PriceWatch:
         return res
 
     def parse_wishlist(self, response: requests.Response) -> None:
-        """TODO"""
+        """Parse wishlist items from a ``requests.Response``.
+
+        Parse the wishlist request response for each item's `title`, `byline`,
+        `price`, `url` and `asin`. Add items to the `self.wishlist` obj. If a
+        "see more" (pagination) link is found, a recursive call is made to
+        request and parse the next page. Sleeps for 1000-2000ms between each
+        request.
+
+        Args:
+            response: A `requests.Response` object of a wishlist page.
+
+        Returns:
+            None
+        """
         soup = bs4.BeautifulSoup(response.text, features="html.parser")
         items = soup.find_all("li", attrs={"class": "a-spacing-none g-item-sortable"})
 
@@ -137,7 +151,18 @@ class PriceWatch:
             return
 
     def compare_prices(self) -> Optional[List[WishlistItem]]:
-        """TODO"""
+        """Compare prices of items between two `Wishlist` objects.
+
+        Compare prices of each item found in the current run's `Wishlist`
+        against the best price seen for that item across previous runs. Items
+        are matched by their `asin`. If a new lowest price is found, a dictionary
+        of the item's attrs is added to the list `new_cheaper_items`.
+
+        Returns:
+            new_cheaper_items: A list of `WishlistItem` dicts which have a new
+                lowest seen price. Or an empty list if no new price reductions
+                are found.
+        """
         new_cheaper_items = []
         prev_wishlist = Wishlist(self.json_man.get_wishlist_dict())
         if prev_wishlist.is_empty():
@@ -168,32 +193,62 @@ class PriceWatch:
 
 
 class Wishlist:
-    """TODO"""
+    """An Amazon wishlist dictionary based data structure.
+
+    A class to interact with an Amazon wishlist stored in a
+    `Dict[asin, WishlistItem]` format, with methods for adding, getting or
+    iterating over items.
+
+    Args:
+        prev_dict: Optional; If creating a `Wishlist` from a previous run, provide
+        a ``prev_dict`` loaded from `wishlist_items.json`.
+
+    Attributes:
+        wishlist_dict: A dictionary containing all wishlist items in a
+        `Dict[asin, WishlistItem]` format.
+
+    Notes:
+        The dictionary structure for the `Wishlist` and `WishlistItem` objects
+        is outlined in `my_types.py`.
+    """
 
     def __init__(self, prev_dict: Optional[WishlistDict] = None):
+        """Init the Wishlist class."""
         if prev_dict:
             self.wishlist_dict = prev_dict
         else:
             self.wishlist_dict = {}  # type: ignore
 
     def __iter__(self) -> Iterator[WishlistItem]:
+        """Iterate over items in the `Wishlist`.
+
+        Returns: `WishlistItem` dictionary.
+        """
         for asin in self.wishlist_dict:
             yield self.wishlist_dict[asin]
+
+    def is_empty(self) -> bool:
+        """Return True is `Wishlist` is empty, False otherwise."""
+        return self.wishlist_dict == {}
 
     def add_item(
         self, title: str, price: str, url: str, asin: str, byline: Optional[str] = None
     ) -> None:
-        """
+        """Add an item to the Wishlist.
+
+        A `WishlistItem` dict is created using the provided arguments and added
+        to the `Wishlist` dict using ``asin`` as the key.
 
         Args:
-            title ():
-            byline ():
-            price ():
-            url ():
-            asin ():
+            title: Title of the item.
+            price: Price of the item. Excluding currency symbol.
+            url: Full URL of the item on Amazon's website.
+            asin: Amazon Standard Identification Number (item id).
+            byline: Optional; Item byline, e.g. used for book's author. Defaults
+                to `None` if not provided.
 
         Returns:
-
+            None
         """
         self.wishlist_dict[asin] = {
             "title": title,
@@ -204,33 +259,37 @@ class Wishlist:
         }
 
     def update_price(self, asin: str, price: str) -> None:
-        """TODO"""
+        """Update item `price` by ``asin``."""
         self.wishlist_dict[asin]["price"] = price
 
     def get_item_price(self, asin: str) -> str:
-        """TODO"""
+        """Get item `price` by ``asin``."""
         return self.wishlist_dict[asin]["price"]
 
     def get_item(self, asin: str) -> WishlistItem:
-        """TODO"""
+        """Get `WishlistItem` by ``asin``"""
         return self.wishlist_dict[asin]
-
-    def is_empty(self) -> bool:
-        """TODO"""
-        return self.wishlist_dict == {}
 
 
 class JsonManager:
-    """TODO"""
+    """Manage loading/saving to/from the `wishlist_items` json file.
+
+    Attributes:
+        wishlist_json_path: Path to `wishlist_items.json`.
+        prev_wishlist: Json file loaded as a python dict.
+    """
 
     def __init__(self):
+        """Init JsonManager using `wishlist_json_path`."""
         self.wishlist_json_path = Path(
             os.path.realpath(sys.path[0]), "wishlist_items.json"
         )
         self.prev_wishlist = self.get_wishlist_dict()
 
     def get_wishlist_dict(self) -> Dict:
-        """TODO"""
+        """Open `wishlist_items.json` as dict. Return empty dict if
+        no such file.
+        """
         try:
             with open(self.wishlist_json_path, "r") as wishlist_json:
                 return json.load(wishlist_json)
@@ -238,13 +297,20 @@ class JsonManager:
             return {}
 
     def save_wishlist_json(self, wishlist: Wishlist) -> None:
-        """TODO"""
+        """Save ``wishlist`` as `wishlist_items.json`."""
         with open(self.wishlist_json_path, "w+") as json_file:
             json.dump(wishlist.wishlist_dict, json_file)
 
 
 def main():
-    """TODO"""
+    """Run one full pass of the program.
+
+    Create an instance of `PriceWatch`. Before continuing, check if the user
+    `config` specified a test notification only run. If not, continue to request
+    and parse all pages of the wishlist from Amazon's website. If there are any
+    items with a "new lowest price", send the user a notification. Save the
+    results from this pass to a json file for next run.
+    """
     logger.info("Started script.")
     pw = PriceWatch()
 
