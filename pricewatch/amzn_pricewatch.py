@@ -79,6 +79,7 @@ class PriceWatch:
             requests.ConnectionError: User's IP may be blocked / bot detection.
         """
         if not wishlist_url:
+            # Visiting first page of wishlist.
             wishlist_url = self.wishlist_url
         try:
             res = self.session.get(wishlist_url, timeout=10)
@@ -129,6 +130,7 @@ class PriceWatch:
                     asin=asin,
                 )
 
+            # Check for pagination / next page of wishlist.
             see_more = soup.find(
                 "a",
                 attrs={
@@ -145,8 +147,10 @@ class PriceWatch:
                     )
                 )
             else:
+                # No more pages to wishlist.
                 return
         else:
+            # Pagination led to page without any items or wishlist was empty.
             logger.warn(f"End of wishlist? No items found on page {response.url}.")
             return
 
@@ -163,7 +167,8 @@ class PriceWatch:
                 lowest seen price. Or an empty list if no new price reductions
                 are found.
         """
-        new_cheaper_items = []
+        new_cheaper_items = []  # Store items found to have a price reduction.
+        # Load wishlist from last run of program.
         prev_wishlist = Wishlist(self.json_man.get_wishlist_dict())
         if prev_wishlist.is_empty():
             logger.info(
@@ -175,13 +180,11 @@ class PriceWatch:
             for item in prev_wishlist:
                 old_price = float(item["price"])
                 try:
-                    # TODO: Explain here
                     current_price = float(self.wishlist.get_item_price(item["asin"]))
                 except KeyError:
                     logger.info(f"{item['asin']} removed from wishlist. Skipping.")
                     continue
                 if current_price < old_price:
-                    # Current wishlist item price is lower than we have seen before.
                     new_cheaper_items.append(self.wishlist.get_item(item["asin"]))
                 elif current_price > old_price:
                     # Price has increased. Overwrite current wishlist item price
@@ -275,7 +278,8 @@ class JsonManager:
     """Manage loading/saving to/from the `wishlist_items` json file.
 
     Attributes:
-        wishlist_json_path: Path to `wishlist_items.json`.
+        wishlist_json_path: Path to `wishlist_items.json`. File is expected
+            to exist on the same path as this source file.
         prev_wishlist: Json file loaded as a python dict.
     """
 
@@ -294,6 +298,7 @@ class JsonManager:
             with open(self.wishlist_json_path, "r") as wishlist_json:
                 return json.load(wishlist_json)
         except FileNotFoundError:
+            # Probably running for the first time.
             return {}
 
     def save_wishlist_json(self, wishlist: Wishlist) -> None:
@@ -320,6 +325,7 @@ def main():
         sys.exit()
 
     page = pw.request_page()
+    # In parsing the first page, pagination will be followed and requested/parsed.
     pw.parse_wishlist(page)
     new_cheaper_items = pw.compare_prices()
     if new_cheaper_items:
@@ -333,10 +339,8 @@ if __name__ == "__main__":
     main()
 
 
-# TODO: Type hints with typing + docstring without types.
 # TODO: More logging.
 # TODO: Packaging?
-# TODO: Black auto format
 # TODO: Run on startup option for readme: Startup folder shortcut / task sched
 # TODO: Google app passwords for docs/readme
 # TODO: Tests?
