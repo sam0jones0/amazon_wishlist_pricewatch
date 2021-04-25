@@ -14,8 +14,17 @@ from typing import (
 )
 from urllib.parse import urlparse
 
-from logger import logger
-from my_types import WishlistItem
+if __package__ is None or __package__ == '':
+    # uses current directory visibility when running from command line.
+    from logger import logger
+    from my_types import WishlistItem
+else:
+    # uses current package visibility when running pytest.
+    from .logger import logger
+    from .my_types import WishlistItem
+
+
+
 
 
 def get_config() -> Dict:
@@ -29,9 +38,6 @@ def get_config() -> Dict:
         "r",
     ) as json_file:
         return json.load(json_file)
-
-
-config = get_config()
 
 
 def send_notification(
@@ -214,3 +220,7 @@ def test_notification() -> None:
         text="Test from Amazon wishlist pricewatch.",
         html="<html><body><p>Test from Amazon wishlist pricewatch.</p></body></html>",
     )
+
+
+if __name__ == "__main__":
+    config = get_config()

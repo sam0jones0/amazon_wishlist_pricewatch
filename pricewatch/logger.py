@@ -2,14 +2,16 @@
 
 import logging
 from logging.handlers import RotatingFileHandler
+from pathlib import Path
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+
 
 # Create handlers.
 console_handler = logging.StreamHandler()
 file_handler = RotatingFileHandler(
-    "pricewatch.log",
+    Path(Path(__file__).parent.absolute(), "pricewatch.log"),
     mode="a+",
     maxBytes=2 * 1024 * 1024,  # 2MB max log size.
     backupCount=5,  # Keep max 5 historical logs.

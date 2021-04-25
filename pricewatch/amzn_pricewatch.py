@@ -10,9 +10,16 @@ from urllib.parse import urlparse
 import bs4  # type: ignore
 import requests
 
-import notify
-from logger import logger
-from my_types import WishlistItem, WishlistDict
+if __package__ is None or __package__ == "":
+    # uses current directory visibility when running from command line.
+    import notify
+    from logger import logger
+    from my_types import WishlistItem, WishlistDict
+else:
+    # uses current package visibility when running pytest.
+    from . import notify
+    from .logger import logger
+    from .my_types import WishlistItem, WishlistDict
 
 
 class PriceWatch:
@@ -77,6 +84,7 @@ class PriceWatch:
             requests.Timeout: The request timed out.
             requests.URLRequired: An invalid URL was supplied.
             requests.ConnectionError: User's IP may be blocked / bot detection.
+            requests.exceptions.RequestException: Requests base exception.
         """
         if not wishlist_url:
             # Visiting first page of wishlist.
@@ -84,11 +92,12 @@ class PriceWatch:
         try:
             res = self.session.get(wishlist_url, timeout=10)
             res.raise_for_status()
-        except requests.RequestException as e:
+        except requests.exceptions.RequestException as e:
             notify.failed_request_msg()
             logger.exception(f"Failed to request wishlist page: {wishlist_url}")
             raise
 
+        logger.info(f"Success requesting wishlist page: {wishlist_url}")
         return res
 
     def parse_wishlist(self, response: requests.Response) -> None:
@@ -111,24 +120,29 @@ class PriceWatch:
 
         if items:
             for item in items:
-                title = item.find("a", attrs={"class": "a-link-normal"})["title"]
-                byline = item.find("span", attrs={"class": "a-size-base"}).text.strip()
-                price = item["data-price"]
-                url = item.find("a", attrs={"class": "a-link-normal"})["href"]
+                try:
+                    title = item.find("a", attrs={"class": "a-link-normal"})["title"]
+                    byline = item.find(
+                        "span", attrs={"class": "a-size-base"}
+                    ).text.strip()
+                    price = item["data-price"]
+                    url = item.find("a", attrs={"class": "a-link-normal"})["href"]
 
-                # Asin found in li class attrs as part of a json string.
-                item_attrs_json = item.attrs["data-reposition-action-params"]
-                item_attrs = json.loads(item_attrs_json)
-                asin_and_marketplace_id = item_attrs["itemExternalId"].split("|")
-                asin = asin_and_marketplace_id[0].lstrip("ASIN:")
+                    # Asin found in li class attrs as part of a json string.
+                    item_attrs_json = item.attrs["data-reposition-action-params"]
+                    item_attrs = json.loads(item_attrs_json)
+                    asin_and_marketplace_id = item_attrs["itemExternalId"].split("|")
+                    asin = asin_and_marketplace_id[0].lstrip("ASIN:")
 
-                self.wishlist.add_item(
-                    title=title,
-                    byline=byline,
-                    price=price,
-                    url=url,
-                    asin=asin,
-                )
+                    self.wishlist.add_item(
+                        title=title,
+                        byline=byline,
+                        price=price,
+                        url=url,
+                        asin=asin,
+                    )
+                except (KeyError, TypeError) as e:
+                    logger.error("Failed to parse a wishlist item.")
 
             # Check for pagination / next page of wishlist.
             see_more = soup.find(
@@ -148,10 +162,13 @@ class PriceWatch:
                 )
             else:
                 # No more pages to wishlist.
+                logger.info("Success parsing wishlist.")
                 return
         else:
             # Pagination led to page without any items or wishlist was empty.
-            logger.warn(f"End of wishlist? No items found on page {response.url}.")
+            logger.warning(
+                f"End of wishlist or wrong URL? No items found on page {response.url}."
+            )
             return
 
     def compare_prices(self) -> Optional[List[WishlistItem]]:
@@ -192,6 +209,13 @@ class PriceWatch:
                     # This keeps a record of the lowest ever seen price.
                     self.wishlist.update_price(item["asin"], str(old_price))
 
+            if new_cheaper_items:
+                logger.info(
+                    f"Success comparing prices. {len(new_cheaper_items)} reduced prices found."
+                )
+            else:
+                logger.info("No items to compare.")
+
             return new_cheaper_items
 
 
@@ -229,6 +253,14 @@ class Wishlist:
         """
         for asin in self.wishlist_dict:
             yield self.wishlist_dict[asin]
+
+    def __len__(self) -> int:
+        """Return number of wishlist items in `Wishlist` as int."""
+        return len(self.wishlist_dict)
+
+    def __getitem__(self, asin: str) -> WishlistItem:
+        """Return `WishlistItem` matching ``asin``"""
+        return self.wishlist_dict[asin]
 
     def is_empty(self) -> bool:
         """Return True is `Wishlist` is empty, False otherwise."""
@@ -339,9 +371,11 @@ if __name__ == "__main__":
     main()
 
 
+# TODO: Check for usages of wishlist.wishlist_dict["something"] instead of __getitem__.
 # TODO: More logging.
 # TODO: Packaging?
 # TODO: Run on startup option for readme: Startup folder shortcut / task sched
 # TODO: Google app passwords for docs/readme
 # TODO: Tests?
+# TODO: Test on other country wishlists.
 # TODO: ?
