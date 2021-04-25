@@ -1,4 +1,5 @@
 from pricewatch.amzn_pricewatch import PriceWatch, Wishlist, JsonManager
+from pricewatch.my_types import WishlistItem, WishlistDict
 import pytest
 import json
 import pricewatch.notify as notify
@@ -84,25 +85,46 @@ class TestWishlist:
         wishlist_with_two_items.update_price(asin="1", price="26.00")
         assert wishlist_with_two_items["1"]["price"] == "26.00"
 
+    def test_get_item_price(self, wishlist_with_two_items: Wishlist):
+        price_1 = wishlist_with_two_items.get_item_price("1")
+        price_2 = wishlist_with_two_items.get_item_price("2")
+        assert price_1 == "0.99"
+        assert price_2 == "2.99"
+
+    def test_get_item(self, wishlist_with_two_items: Wishlist):
+        item = wishlist_with_two_items.get_item("1")
+        assert item["title"] == "Test title"
+        assert item["byline"] == "Test byline"
+        assert item["price"] == "0.99"
+        assert item["url"] == "www.example.com"
+        assert item["asin"] == "1"
 
 
+class TestJsonManager:
+    """TODO"""
 
+    def test_get_existing_wishlist_dict(self):
+        json_man = JsonManager()
+        json_man.wishlist_json_path = Path(
+            Path(__file__).parent.absolute(), "wishlist_items.json"
+        )
 
-    # def test_get_item_price(self):
-    #     pass
-    #
-    # def test_get_item(self):
-    #     pass
+        # Manually json.load the file .get_wishlist_dict should load.
+        with open(
+            Path(Path(__file__).parent.absolute(), "wishlist_items.json"), "r"
+        ) as f:
+            wishlist_obj = json.load(f)
 
+        assert json_man.get_wishlist_dict() == wishlist_obj
 
-# class TestJsonManager:
-#     """TODO"""
-#
-#     def test_get_existing_wishlist_dict(self):
-#         pass
-#
-#     def test_get_nonexisting_wishlist_dict(self):
-#         pass
+    def test_get_nonexisting_wishlist_dict(self):
+        json_man = JsonManager()
+        json_man.wishlist_json_path = Path(
+            Path(__file__).parent.absolute(), "does_not_exist.json"
+        )
+
+        assert json_man.get_wishlist_dict() == {}
+
 #
 #     def test_save_wishlist_json(self):
 #         pass
@@ -131,4 +153,3 @@ class TestWishlist:
 # TODO: Test edge cases. Test the edge cases of a few unusually complex
 #  code that you think will probably have errors. Possibly put in another file
 #  (advanced tests).
-

@@ -78,7 +78,6 @@ def wishlist_with_two_items():
     return wishlist
 
 
-
 # Could use the following to get the logger (would have to give it name).
 # And then could change logging file maybe?
 #
