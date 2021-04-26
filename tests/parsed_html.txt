@@ -1,0 +1,1 @@
+<html><body><p>Test title<br>Test byline<br><a href="https://www.example.com/example/path">https://www.example.com/example/path</a><br>Price: 7.0<br><br></p></body></html>Test title 2<br><a href="https://www.example.com/another/example/path">https://www.example.com/another/example/path</a><br>Price: 9.15<br><br></p></body></html>

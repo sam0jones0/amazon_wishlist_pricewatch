@@ -1,16 +1,16 @@
 {
   "1": {
-    "title": "Olympia GG925 Cookie Jar with Lid, 3.9 L",
-    "byline": null,
+    "title": "Test title",
+    "byline": "Test byline",
     "price": "7.0",
-    "url": "/dp/B00KQNDJ22/?coliid=IGMMYNR35XB83&colid=SY8C9LJNOM00&psc=1&ref_=lv_vv_lig_dp_it_im",
+    "url": "/example/path",
     "asin": "1"
   },
   "2": {
-    "title": "Oral-B Braun Precision Clean Replacement Rechargeable Toothbrush Heads (2 x Toothbrush Heads)",
-    "byline": "Super-fresh clean much brush.",
+    "title": "Test title 2",
+    "byline": null,
     "price": "9.15",
-    "url": "/dp/B01MSJWIM7/?coliid=I35YRVX5OFZF11&colid=SY8C9LJNOM00&psc=1&ref_=lv_vv_lig_dp_it_im",
+    "url": "/another/example/path",
     "asin": "2"
   }
 }

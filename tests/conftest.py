@@ -1,5 +1,3 @@
-
-
 import pytest
 import os
 import sys
@@ -12,6 +10,8 @@ from pathlib import Path
 import pricewatch.logger
 import logging.handlers
 
+TESTS_FOLDER = Path(__file__).parent.absolute()
+
 
 @pytest.fixture()
 def example_wishlist_items():
@@ -20,14 +20,14 @@ def example_wishlist_items():
             "title": "Olympia GG925 Cookie Jar with Lid, 3.9 L",
             "byline": None,
             "price": "6.0",
-            "url": "/dp/B00KQNDJ22/?coliid=IGMMYNR35XB83&colid=SY8C9LJNOM00&psc=1&ref_=lv_vv_lig_dp_it_im",
+            "url": "/example/path",
             "asin": "1",
         },
         "2": {
             "title": "Oral-B Braun Precision Clean Replacement Rechargeable Toothbrush Heads (2 x Toothbrush Heads)",
             "byline": "Super-fresh clean much brush.",
             "price": "10.15",
-            "url": "/dp/B01MSJWIM7/?coliid=I35YRVX5OFZF11&colid=SY8C9LJNOM00&psc=1&ref_=lv_vv_lig_dp_it_im",
+            "url": "/another/example/path",
             "asin": "2",
         },
     }
@@ -35,7 +35,7 @@ def example_wishlist_items():
 
 @pytest.fixture()
 def mock_prev_wishlist(monkeypatch):
-    with open(Path(Path(__file__).parent.absolute(), "wishlist_items.json"), "r") as f:
+    with open(Path(TESTS_FOLDER, "wishlist_items.json"), "r") as f:
         wishlist_json = json.load(f)
 
     def mock_wishlist_items(*args, **kwargs):
@@ -46,7 +46,7 @@ def mock_prev_wishlist(monkeypatch):
 
 @pytest.fixture()
 def mock_config(monkeypatch):
-    with open(Path(Path(__file__).parent.absolute(), "config2.json"), "r") as f:
+    with open(Path(TESTS_FOLDER, "config2.json"), "r") as f:
         config = json.load(f)
 
     def mock_config(*args, **kwargs):
@@ -67,15 +67,53 @@ def wishlist_with_two_items():
     wishlist.add_item(
         title="Test title",
         byline="Test byline",
-        price="0.99",
-        url="www.example.com",
+        price="7.0",
+        url="/example/path",
         asin="1",
     )
     wishlist.add_item(
-        title="Test title 2", price="2.99", url="www.example2.com", asin="2"
+        title="Test title 2", price="9.15", url="/another/example/path", asin="2"
     )
 
     return wishlist
+
+
+@pytest.fixture()
+def block_notification_calls(monkeypatch):
+    def mock_calls(*args, **kwargs):
+        return True, True
+
+    monkeypatch.setattr(notify, "parse_txt_html", mock_calls)
+    monkeypatch.setattr(notify, "send_email", mock_calls)
+    monkeypatch.setattr(notify, "telegram_message", mock_calls)
+
+
+@pytest.fixture()
+def mock_wishlist_items_list():
+    return [
+        {
+            "title": "Test title",
+            "byline": "Test byline",
+            "price": "7.0",
+            "url": "/example/path",
+            "asin": "1",
+        },
+        {
+            "title": "Test title 2",
+            "byline": None,
+            "price": "9.15",
+            "url": "/another/example/path",
+            "asin": "2",
+        },
+    ]
+
+
+@pytest.fixture()
+def parsed_text_html():
+    with open(Path(TESTS_FOLDER, "parsed_text.txt"), "r") as text_file, open(
+        Path(TESTS_FOLDER, "parsed_html.txt"), "r"
+    ) as html_file:
+        return text_file.read(), html_file.read()
 
 
 # Could use the following to get the logger (would have to give it name).
@@ -85,4 +123,3 @@ def wishlist_with_two_items():
 #
 # if os.environ.get('mylogger_level'):
 #     logger.setLevel(os.environ.get('mylogger_level'))
-

@@ -62,7 +62,7 @@ def send_notification(
         None
 
     Raises:
-        ValueError: Insufficient number of arguments.
+        ValueError: Insufficient number or type of arguments provided.
     """
     if wishlist_item_list:
         text, html = parse_txt_html(wishlist_item_list)

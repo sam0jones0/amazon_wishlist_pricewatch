@@ -1,3 +1,5 @@
+import io
+
 from pricewatch.amzn_pricewatch import PriceWatch, Wishlist, JsonManager
 from pricewatch.my_types import WishlistItem, WishlistDict
 import pytest
@@ -9,6 +11,12 @@ import pricewatch.logger as logger
 # TODO: Test ordinary cases first, i.e. Expected usage.
 #  Test the common case of everything you can.
 
+# TODO: May be able to remove config2.json if mock .get_config -> True
+#  but would have to supply url in test_parse_wishlist.
+
+
+TESTS_FOLDER = Path(__file__).parent.absolute()
+
 # amzn_pricewatch.py
 
 
@@ -17,6 +25,7 @@ class TestPriceWatch:
 
     # TODO: Class level scope PriceWatch()
 
+    @pytest.mark.skip(reason="Avoid making network calls during testing.")
     def test_parse_wishlist(self, mock_config):
         """TODO"""
         # TODO: Mock or monkeypatch standard response obj.
@@ -57,46 +66,46 @@ class TestWishlist:
         wishlist.add_item(
             title="Test title",
             byline="Test byline",
-            price="0.99",
-            url="www.example.com",
+            price="7.0",
+            url="/example/path",
             asin="1",
         )
         wishlist.add_item(
-            title="Test title 2", price="2.99", url="www.example2.com", asin="2"
+            title="Test title 2", price="9.15", url="/another/example/path", asin="2"
         )
         assert len(wishlist) == 2
 
         item_1 = wishlist["1"]
         assert item_1["title"] == "Test title"
         assert item_1["byline"] == "Test byline"
-        assert item_1["price"] == "0.99"
-        assert item_1["url"] == "www.example.com"
+        assert item_1["price"] == "7.0"
+        assert item_1["url"] == "/example/path"
         assert item_1["asin"] == "1"
 
         item_2 = wishlist["2"]
         assert item_2["title"] == "Test title 2"
         assert item_2["byline"] is None
-        assert item_2["price"] == "2.99"
-        assert item_2["url"] == "www.example2.com"
+        assert item_2["price"] == "9.15"
+        assert item_2["url"] == "/another/example/path"
         assert item_2["asin"] == "2"
 
     def test_update_price(self, wishlist_with_two_items: Wishlist):
-        assert wishlist_with_two_items["1"]["price"] == "0.99"
+        assert wishlist_with_two_items["1"]["price"] == "7.0"
         wishlist_with_two_items.update_price(asin="1", price="26.00")
         assert wishlist_with_two_items["1"]["price"] == "26.00"
 
     def test_get_item_price(self, wishlist_with_two_items: Wishlist):
         price_1 = wishlist_with_two_items.get_item_price("1")
         price_2 = wishlist_with_two_items.get_item_price("2")
-        assert price_1 == "0.99"
-        assert price_2 == "2.99"
+        assert price_1 == "7.0"
+        assert price_2 == "9.15"
 
     def test_get_item(self, wishlist_with_two_items: Wishlist):
         item = wishlist_with_two_items.get_item("1")
         assert item["title"] == "Test title"
         assert item["byline"] == "Test byline"
-        assert item["price"] == "0.99"
-        assert item["url"] == "www.example.com"
+        assert item["price"] == "7.0"
+        assert item["url"] == "/example/path"
         assert item["asin"] == "1"
 
 
@@ -105,40 +114,59 @@ class TestJsonManager:
 
     def test_get_existing_wishlist_dict(self):
         json_man = JsonManager()
-        json_man.wishlist_json_path = Path(
-            Path(__file__).parent.absolute(), "wishlist_items.json"
-        )
+        json_man.wishlist_json_path = Path(TESTS_FOLDER, "wishlist_items.json")
 
         # Manually json.load the file .get_wishlist_dict should load.
-        with open(
-            Path(Path(__file__).parent.absolute(), "wishlist_items.json"), "r"
-        ) as f:
+        with open(Path(TESTS_FOLDER, "wishlist_items.json"), "r") as f:
             wishlist_obj = json.load(f)
 
         assert json_man.get_wishlist_dict() == wishlist_obj
 
     def test_get_nonexisting_wishlist_dict(self):
         json_man = JsonManager()
-        json_man.wishlist_json_path = Path(
-            Path(__file__).parent.absolute(), "does_not_exist.json"
-        )
+        json_man.wishlist_json_path = Path(TESTS_FOLDER, "does_not_exist.json")
 
         assert json_man.get_wishlist_dict() == {}
 
-#
-#     def test_save_wishlist_json(self):
-#         pass
-#
-#
-# # notify.py
-#
-#
-# def test_get_config():
-#     pass
-#
-#
-# def test_parse_text_html():
-#     pass
+    def test_save_wishlist_json(self, tmpdir, wishlist_with_two_items):
+
+        truth_wishlist_json = Path(TESTS_FOLDER, "wishlist_items.json")
+        temp_wishlist_json = Path(tmpdir, "wishlist_items.json")
+        json_man = JsonManager()
+        json_man.wishlist_json_path = temp_wishlist_json
+        json_man.save_wishlist_json(wishlist_with_two_items)
+
+        assert json.load(open(temp_wishlist_json)) == json.load(
+            open(truth_wishlist_json)
+        )
+
+
+# notify.py
+
+
+def test_send_notification(block_notification_calls, mock_config):
+    notify.config = notify.get_config()
+    # Type checking error below for wishlist_item_list can be ignored as all
+    # calls within send_notification are mocked to return True.
+    notify.send_notification(wishlist_item_list="test")  # type: ignore
+    notify.send_notification(text="test", html="test")
+
+    with pytest.raises(ValueError):
+        notify.send_notification(text="test")
+        notify.send_notification()
+
+
+def test_parse_text_html(mock_config, mock_wishlist_items_list, parsed_text_html):
+    notify.config = notify.get_config()
+    notify.config["general"]["wishlist_url"] = "https://www.example.com/ex/am/ple"
+
+    text, html = notify.parse_txt_html(mock_wishlist_items_list)
+    true_text, true_html = parsed_text_html
+
+    assert text == true_text
+    assert html == true_html
+
+
 #
 #
 # def test_send_email():

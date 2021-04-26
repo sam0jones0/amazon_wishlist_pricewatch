@@ -1,0 +1,9 @@
+Test title
+Test byline
+https://www.example.com/example/path
+Price: 7.0
+
+Test title 2
+https://www.example.com/another/example/path
+Price: 9.15
+
