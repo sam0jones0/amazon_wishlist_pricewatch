@@ -1,36 +1,18 @@
-import pytest
-import os
-import sys
-from pricewatch.amzn_pricewatch import PriceWatch, Wishlist, JsonManager
-import pytest
 import json
-import pricewatch.notify as notify
+import logging.handlers
 from pathlib import Path
 
-import pricewatch.logger
-import logging.handlers
+import pytest
+
+import pricewatch.notify as notify
+from pricewatch.amzn_pricewatch import Wishlist, JsonManager
 
 TESTS_FOLDER = Path(__file__).parent.absolute()
 
 
-@pytest.fixture()
-def example_wishlist_items():
-    return {
-        "1": {
-            "title": "Olympia GG925 Cookie Jar with Lid, 3.9 L",
-            "byline": None,
-            "price": "6.0",
-            "url": "/example/path",
-            "asin": "1",
-        },
-        "2": {
-            "title": "Oral-B Braun Precision Clean Replacement Rechargeable Toothbrush Heads (2 x Toothbrush Heads)",
-            "byline": "Super-fresh clean much brush.",
-            "price": "10.15",
-            "url": "/another/example/path",
-            "asin": "2",
-        },
-    }
+@pytest.fixture(autouse=True)
+def disable_logging():
+    logging.disable(logging.CRITICAL)
 
 
 @pytest.fixture()
@@ -55,9 +37,44 @@ def mock_config(monkeypatch):
     monkeypatch.setattr(notify, "get_config", mock_config)
 
 
-@pytest.fixture(autouse=True)
-def disable_logging():
-    logging.disable(logging.CRITICAL)
+@pytest.fixture()
+def block_notification_calls(monkeypatch):
+    def mock_calls(*args, **kwargs):
+        return True, True
+
+    monkeypatch.setattr(notify, "parse_txt_html", mock_calls)
+    monkeypatch.setattr(notify, "send_email", mock_calls)
+    monkeypatch.setattr(notify, "telegram_message", mock_calls)
+
+
+@pytest.fixture()
+def parsed_text_html():
+    """Expected output from `notify.parse_txt_html`."""
+    with open(Path(TESTS_FOLDER, "parsed_text.txt"), "r") as text_file, open(
+        Path(TESTS_FOLDER, "parsed_html.txt"), "r"
+    ) as html_file:
+        return text_file.read(), html_file.read()
+
+
+@pytest.fixture()
+def example_wishlist_items():
+    """Represents what usually populates `amzn_pricewatch.Wishlist.wishlist_dict`."""
+    return {
+        "1": {
+            "title": "Olympia GG925 Cookie Jar with Lid, 3.9 L",
+            "byline": None,
+            "price": "6.0",
+            "url": "/example/path",
+            "asin": "1",
+        },
+        "2": {
+            "title": "Oral-B Braun Precision Clean Replacement Rechargeable Toothbrush Heads (2 x Toothbrush Heads)",
+            "byline": "Super-fresh clean much brush.",
+            "price": "10.15",
+            "url": "/another/example/path",
+            "asin": "2",
+        },
+    }
 
 
 @pytest.fixture()
@@ -79,17 +96,10 @@ def wishlist_with_two_items():
 
 
 @pytest.fixture()
-def block_notification_calls(monkeypatch):
-    def mock_calls(*args, **kwargs):
-        return True, True
-
-    monkeypatch.setattr(notify, "parse_txt_html", mock_calls)
-    monkeypatch.setattr(notify, "send_email", mock_calls)
-    monkeypatch.setattr(notify, "telegram_message", mock_calls)
-
-
-@pytest.fixture()
 def mock_wishlist_items_list():
+    """This represents the list `new_cheaper_items` built in
+    `amzn_pricewatch.PriceWatch` which is passed to notify.send_notification`.
+    """
     return [
         {
             "title": "Test title",
@@ -106,20 +116,3 @@ def mock_wishlist_items_list():
             "asin": "2",
         },
     ]
-
-
-@pytest.fixture()
-def parsed_text_html():
-    with open(Path(TESTS_FOLDER, "parsed_text.txt"), "r") as text_file, open(
-        Path(TESTS_FOLDER, "parsed_html.txt"), "r"
-    ) as html_file:
-        return text_file.read(), html_file.read()
-
-
-# Could use the following to get the logger (would have to give it name).
-# And then could change logging file maybe?
-#
-# logger = logging.getLogger('mylogger').DoSomethingToLogger()
-#
-# if os.environ.get('mylogger_level'):
-#     logger.setLevel(os.environ.get('mylogger_level'))

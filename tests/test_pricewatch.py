@@ -1,15 +1,11 @@
-import io
-
-from pricewatch.amzn_pricewatch import PriceWatch, Wishlist, JsonManager
-from pricewatch.my_types import WishlistItem, WishlistDict
-import pytest
 import json
-import pricewatch.notify as notify
 from pathlib import Path
-import pricewatch.logger as logger
 
-# TODO: Test ordinary cases first, i.e. Expected usage.
-#  Test the common case of everything you can.
+import pytest
+
+import pricewatch.notify as notify
+from pricewatch.amzn_pricewatch import PriceWatch, Wishlist, JsonManager
+
 
 # TODO: May be able to remove config2.json if mock .get_config -> True
 #  but would have to supply url in test_parse_wishlist.
@@ -17,19 +13,20 @@ import pricewatch.logger as logger
 
 TESTS_FOLDER = Path(__file__).parent.absolute()
 
-# amzn_pricewatch.py
+
+######################
+# amzn_pricewatch.py #
+######################
 
 
 class TestPriceWatch:
-    """TODO"""
-
-    # TODO: Class level scope PriceWatch()
+    """Tests for amzn_pricewatch.Pricewatch."""
 
     @pytest.mark.skip(reason="Avoid making network calls during testing.")
     def test_parse_wishlist(self, mock_config):
-        """TODO"""
-        # TODO: Mock or monkeypatch standard response obj.
         pw = PriceWatch()
+        # A real web request to tests/config2.json["general"]["wishlist_url"].
+        # Decided against mocking out a response due to license issues.
         page = pw.request_page()
         pw.parse_wishlist(page)
         assert not pw.wishlist.is_empty()
@@ -37,19 +34,18 @@ class TestPriceWatch:
     def test_compare_prices(
         self, example_wishlist_items, mock_prev_wishlist, mock_config
     ):
-        """TODO"""
         pw = PriceWatch()
         pw.wishlist = Wishlist(example_wishlist_items)
         cheaper_items = pw.compare_prices()
         # Check the item with a reduced price is added to cheaper_items list.
         assert len(cheaper_items) == 1
         assert cheaper_items[0]["price"] == "6.0"
-        # Check the old, cheaper price is saved instead of increased price.
+        # When increased price found check the old, cheaper price is saved instead.
         assert pw.wishlist.get_item_price("2") == "9.15"
 
 
 class TestWishlist:
-    """TODO"""
+    """Tests for amzn_pricewatch.Wishlist."""
 
     def test_init_with_existing_dict(self, example_wishlist_items):
         wishlist = Wishlist(example_wishlist_items)
@@ -110,13 +106,12 @@ class TestWishlist:
 
 
 class TestJsonManager:
-    """TODO"""
+    """Tests for amzn_pricewatch.JsonManager."""
 
     def test_get_existing_wishlist_dict(self):
         json_man = JsonManager()
         json_man.wishlist_json_path = Path(TESTS_FOLDER, "wishlist_items.json")
 
-        # Manually json.load the file .get_wishlist_dict should load.
         with open(Path(TESTS_FOLDER, "wishlist_items.json"), "r") as f:
             wishlist_obj = json.load(f)
 
@@ -129,20 +124,21 @@ class TestJsonManager:
         assert json_man.get_wishlist_dict() == {}
 
     def test_save_wishlist_json(self, tmpdir, wishlist_with_two_items):
-
         truth_wishlist_json = Path(TESTS_FOLDER, "wishlist_items.json")
         temp_wishlist_json = Path(tmpdir, "wishlist_items.json")
         json_man = JsonManager()
         json_man.wishlist_json_path = temp_wishlist_json
         json_man.save_wishlist_json(wishlist_with_two_items)
 
-        assert json.load(open(temp_wishlist_json)) == json.load(
-            open(truth_wishlist_json)
-        )
+        with open(temp_wishlist_json, "r") as temp, open(
+            truth_wishlist_json, "r"
+        ) as truth:
+            assert json.load(temp) == json.load(truth)
 
 
-# notify.py
-
+#############
+# notify.py #
+#############
 
 def test_send_notification(block_notification_calls, mock_config):
     notify.config = notify.get_config()

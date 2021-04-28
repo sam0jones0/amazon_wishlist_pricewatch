@@ -14,7 +14,7 @@ from typing import (
 )
 from urllib.parse import urlparse
 
-if __package__ is None or __package__ == '':
+if __package__ is None or __package__ == "":
     # uses current directory visibility when running from command line.
     from logger import logger
     from my_types import WishlistItem
@@ -22,9 +22,6 @@ else:
     # uses current package visibility when running pytest.
     from .logger import logger
     from .my_types import WishlistItem
-
-
-
 
 
 def get_config() -> Dict:
@@ -175,7 +172,7 @@ def send_email(text: str, html: str) -> None:
                 to_addrs=recipients,
             )
     except smtplib.SMTPException as e:
-        logger.exception("Failed to send email.")
+        logger.exception("Failed to send email. Check config.")
 
 
 def telegram_message(text: str) -> None:
@@ -201,7 +198,7 @@ def telegram_message(text: str) -> None:
     try:
         bot.send_message(chat_id=chat_id, text=text)
     except telegram.error.TelegramError as e:
-        logger.exception("Failed to send telegram message.")
+        logger.exception("Failed to send telegram message. Check config.")
 
 
 def failed_request_msg() -> None:

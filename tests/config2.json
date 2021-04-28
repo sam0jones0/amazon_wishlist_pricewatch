@@ -1,0 +1,22 @@
+{
+  "general": {
+    "notification_mode": "12 (1 for email + 2 for telegram)",
+    "wishlist_url": "https://www.amazon.co.uk/hz/wishlist/ls/S0M3C0D3",
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:87.0) Gecko/20100101 Firefox/87.0",
+    "send_test_notification": "0"
+  },
+  "email": {
+    "smtp_server": "YOUR-SMTP-SERVER (e.g. smtp.gmail.com)",
+    "smtp_port": "YOUR-SMTP-SSL-PORT (e.g. 465 for gmail)",
+    "sending_email": "SENDING EMAIL ADDRESS (e.g. example@gmail.com)",
+    "sending_email_pass": "SENDING EMAIL ADDRESS PASSWORD",
+    "receiving_emails": [
+      "person1@gmail.com",
+      "person2@optional.com"
+    ]
+  },
+  "telegram": {
+    "chat_id": "1234567890",
+    "token": "9876543210:HFusj898IEXAMPLEHDKEIIE83exampleuUJ"
+  }
+}
