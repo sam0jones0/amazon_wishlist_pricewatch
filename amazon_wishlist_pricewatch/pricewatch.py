@@ -375,7 +375,7 @@ if __name__ == "__main__":
 #  https://setuptools.readthedocs.io/en/latest/userguide/datafiles.html#accessing-data-files-at-runtime
 # TODO: package_data works for bdist and not sdist. However, MANIFEST.in works for sdist, but not for bdist
 
-# TODO: Switch to semantic versioning.
+# TODO: Switch to semantic versioning (with tags).
 # TODO: Check for usages of wishlist.wishlist_dict["something"] instead of __getitem__.
 # TODO: More logging.
 # TODO: Run on startup option for readme: Startup folder shortcut / task sched

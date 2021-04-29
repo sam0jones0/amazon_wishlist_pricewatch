@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-import pricewatch.notify as notify
-from pricewatch.amzn_pricewatch import Wishlist, JsonManager
+import amazon_wishlist_pricewatch.notify as notify
+from amazon_wishlist_pricewatch.pricewatch import Wishlist, JsonManager
 
 TESTS_FOLDER = Path(__file__).parent.absolute()
 

@@ -7,4 +7,6 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
-write_to = "pricewatch/version.py"
+write_to = "amazon_wishlist_pricewatch/version.py"
+version_scheme = "python-simplified-semver"
+local_scheme = "no-local-version"

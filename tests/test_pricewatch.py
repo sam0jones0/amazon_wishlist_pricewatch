@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pytest
 
-import pricewatch.notify as notify
-from pricewatch.amzn_pricewatch import PriceWatch, Wishlist, JsonManager
+import amazon_wishlist_pricewatch.notify as notify
+from amazon_wishlist_pricewatch.pricewatch import PriceWatch, Wishlist, JsonManager
 
 
 # TODO: May be able to remove config2.json if mock .get_config -> True
@@ -14,9 +14,9 @@ from pricewatch.amzn_pricewatch import PriceWatch, Wishlist, JsonManager
 TESTS_FOLDER = Path(__file__).parent.absolute()
 
 
-######################
-# amzn_pricewatch.py #
-######################
+#################
+# amazon_wishlist_pricewatch.py #
+#################
 
 
 class TestPriceWatch:

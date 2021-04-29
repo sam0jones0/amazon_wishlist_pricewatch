@@ -214,8 +214,8 @@ def failed_request_msg() -> None:
 def test_notification() -> None:
     """Send a message testing whether notification methods are correctly configured."""
     send_notification(
-        text="Test from Amazon wishlist pricewatch.",
-        html="<html><body><p>Test from Amazon wishlist pricewatch.</p></body></html>",
+        text="Test from Amazon wishlist amazon_wishlist_pricewatch.",
+        html="<html><body><p>Test from Amazon wishlist amazon_wishlist_pricewatch.</p></body></html>",
     )
 
 
