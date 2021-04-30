@@ -1,8 +1,6 @@
 import json
-import os
 import smtplib
 import ssl
-import sys
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
@@ -15,11 +13,11 @@ from typing import (
 from urllib.parse import urlparse
 
 if __package__ is None or __package__ == "":
-    # uses current directory visibility when running from command line.
+    # Uses current directory visibility when not running as a package.
     from logger import logger
     from my_types import WishlistItem
 else:
-    # uses current package visibility when running pytest.
+    # Uses current package visibility when running as a package or with pytest.
     from .logger import logger
     from .my_types import WishlistItem
 
@@ -29,9 +27,7 @@ def get_config() -> Dict:
     expected to exist on the same path as this source file.
     """
     with open(
-        Path(
-            Path(__file__).parent, "config2.json"
-        ).resolve(),  # FIXME: config2 back to config
+        Path(Path(__file__).parent, "config.json").resolve(),
         "r",
     ) as json_file:
         return json.load(json_file)
@@ -143,7 +139,6 @@ def send_email(text: str, html: str) -> None:
     smtp_server = email_config["smtp_server"]
     smtp_port = int(email_config["smtp_port"])
     sending_email = email_config["sending_email"]
-    # TODO: A better method of password access should be considered. Keyring?
     sending_email_pass = email_config["sending_email_pass"]
     recipients = email_config["receiving_emails"]
 

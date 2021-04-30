@@ -1,30 +1,21 @@
 import json
-import os
 import random
 import sys
 import time
 from pathlib import Path
-
-try:
-    import importlib.resources as pkg_resources
-except ImportError:
-    # Try backported to PY<37 `importlib_resources`.
-    import importlib_resources as pkg_resources
-
 from typing import List, Dict, Optional, Iterator
 from urllib.parse import urlparse
 
 import bs4  # type: ignore
 import requests
 
-
 if __package__ is None or __package__ == "":
-    # uses current directory visibility when running from command line.
+    # Uses current directory visibility when not running as a package.
     import notify
     from logger import logger
     from my_types import WishlistItem, WishlistDict
 else:
-    # uses current package visibility when running pytest.
+    # Uses current package visibility when running as a package or with pytest.
     from . import notify
     from .logger import logger
     from .my_types import WishlistItem, WishlistDict
@@ -351,10 +342,11 @@ def main():
     """Run one full pass of the program.
 
     Create an instance of `PriceWatch`. Before continuing, check if the user
-    `config` specified a test notification only run. If not, continue to request
-    and parse all pages of the wishlist from Amazon's website. If there are any
-    items with a "new lowest price", send the user a notification. Save the
-    results from this pass to a json file for next run.
+    has filled in `config.json` or has specified a test notification only run.
+    If not, continue to request and parse all pages of the wishlist from
+    Amazon's website. If there are any items with a "new lowest price", send
+    the user a notification. Save the results from this pass to a json file
+    for next run.
     """
     logger.info("Started script.")
     pw = PriceWatch()
@@ -362,6 +354,13 @@ def main():
     if pw.config["general"]["send_test_notification"] == "1":
         logger.info("Sending test notification and exiting.")
         notify.test_notification()
+        sys.exit()
+    elif (
+        pw.config["general"]["wishlist_url"]
+        == "https://www.amazon.co.uk/hz/wishlist/ls/S0M3C0D3"
+    ):
+        config_file_path = Path(Path(__file__).parent, "config.json").resolve()
+        print(f"You need to fill in the config file:\n{config_file_path}")
         sys.exit()
 
     page = pw.request_page()
@@ -378,16 +377,10 @@ def main():
 if __name__ == "__main__":
     main()
 
-# TODO: Packaging:
-# TODO: pkg_resources file access instead of __file__:
-#  https://setuptools.readthedocs.io/en/latest/userguide/datafiles.html#accessing-data-files-at-runtime
-# TODO: package_data works for bdist and not sdist. However, MANIFEST.in works for sdist, but not for bdist
 
-# TODO: Switch to semantic versioning (with tags).
 # TODO: Check for usages of wishlist.wishlist_dict["something"] instead of __getitem__.
 # TODO: More logging.
 # TODO: Run on startup option for readme: Startup folder shortcut / task sched
 # TODO: Google app passwords for docs/readme
-# TODO: Tests?
 # TODO: Test on other country wishlists.
 # TODO: ?
