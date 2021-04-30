@@ -4,11 +4,19 @@ import random
 import sys
 import time
 from pathlib import Path
+
+try:
+    import importlib.resources as pkg_resources
+except ImportError:
+    # Try backported to PY<37 `importlib_resources`.
+    import importlib_resources as pkg_resources
+
 from typing import List, Dict, Optional, Iterator
 from urllib.parse import urlparse
 
 import bs4  # type: ignore
 import requests
+
 
 if __package__ is None or __package__ == "":
     # uses current directory visibility when running from command line.
@@ -318,8 +326,8 @@ class JsonManager:
     def __init__(self):
         """Init JsonManager using `wishlist_json_path`."""
         self.wishlist_json_path = Path(
-            os.path.realpath(sys.path[0]), "wishlist_items.json"
-        )
+            Path(__file__).parent, "wishlist_items.json"
+        ).resolve()
         self.prev_wishlist = self.get_wishlist_dict()
 
     def get_wishlist_dict(self) -> Dict:

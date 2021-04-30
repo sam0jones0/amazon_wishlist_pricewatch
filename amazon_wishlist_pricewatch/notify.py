@@ -30,8 +30,8 @@ def get_config() -> Dict:
     """
     with open(
         Path(
-            os.path.realpath(sys.path[0]), "config2.json"
-        ),  # FIXME: config2 back to config
+            Path(__file__).parent, "config2.json"
+        ).resolve(),  # FIXME: config2 back to config
         "r",
     ) as json_file:
         return json.load(json_file)
@@ -51,7 +51,7 @@ def send_notification(
     Args:
         wishlist_item_list: Optional; A list of `WishlistItem` dicts which have
             a new lowest seen price, which is typically returned from
-            ``amzn_pricewatch.PriceWatch.compare_prices``.
+            ``pricewatch.PriceWatch.compare_prices``.
         text: The plain-text string to be sent. ASCII only.
         html: HTML formatted string to be sent.
 
@@ -84,7 +84,7 @@ def parse_txt_html(wishlist_item_list: List[WishlistItem]) -> Tuple[str, str]:
     Args:
         wishlist_item_list (list): A list of `WishlistItem` dicts which have a new
                 lowest seen price, which is typically returned from
-                ``amzn_pricewatch.PriceWatch.compare_prices``.
+                ``pricewatch.PriceWatch.compare_prices``.
 
     Returns: A tuple containing (text, html) strings of key product information.
     """

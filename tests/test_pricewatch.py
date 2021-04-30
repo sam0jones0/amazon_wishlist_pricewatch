@@ -11,16 +11,16 @@ from amazon_wishlist_pricewatch.pricewatch import PriceWatch, Wishlist, JsonMana
 #  but would have to supply url in test_parse_wishlist.
 
 
-TESTS_FOLDER = Path(__file__).parent.absolute()
+TESTS_FOLDER = Path(__file__).parent.resolve()
 
 
-#################
+#################################
 # amazon_wishlist_pricewatch.py #
-#################
+#################################
 
 
 class TestPriceWatch:
-    """Tests for amzn_pricewatch.Pricewatch."""
+    """Tests for pricewatch.Pricewatch."""
 
     @pytest.mark.skip(reason="Avoid making network calls during testing.")
     def test_parse_wishlist(self, mock_config):
@@ -45,7 +45,7 @@ class TestPriceWatch:
 
 
 class TestWishlist:
-    """Tests for amzn_pricewatch.Wishlist."""
+    """Tests for pricewatch.Wishlist."""
 
     def test_init_with_existing_dict(self, example_wishlist_items):
         wishlist = Wishlist(example_wishlist_items)
@@ -106,7 +106,7 @@ class TestWishlist:
 
 
 class TestJsonManager:
-    """Tests for amzn_pricewatch.JsonManager."""
+    """Tests for pricewatch.JsonManager."""
 
     def test_get_existing_wishlist_dict(self):
         json_man = JsonManager()

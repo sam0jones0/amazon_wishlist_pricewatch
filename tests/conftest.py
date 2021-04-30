@@ -7,7 +7,7 @@ import pytest
 import amazon_wishlist_pricewatch.notify as notify
 from amazon_wishlist_pricewatch.pricewatch import Wishlist, JsonManager
 
-TESTS_FOLDER = Path(__file__).parent.absolute()
+TESTS_FOLDER = Path(__file__).parent.resolve()
 
 
 @pytest.fixture(autouse=True)
@@ -58,7 +58,7 @@ def parsed_text_html():
 
 @pytest.fixture()
 def example_wishlist_items():
-    """Represents what usually populates `amzn_pricewatch.Wishlist.wishlist_dict`."""
+    """Represents what usually populates `pricewatch.Wishlist.wishlist_dict`."""
     return {
         "1": {
             "title": "Olympia GG925 Cookie Jar with Lid, 3.9 L",
@@ -98,7 +98,7 @@ def wishlist_with_two_items():
 @pytest.fixture()
 def mock_wishlist_items_list():
     """This represents the list `new_cheaper_items` built in
-    `amzn_pricewatch.PriceWatch` which is passed to notify.send_notification`.
+    `pricewatch.PriceWatch` which is passed to notify.send_notification`.
     """
     return [
         {
