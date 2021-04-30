@@ -230,3 +230,4 @@ fabric.properties
 /amazon_wishlist_pricewatch/wishlist_items1.json
 /amazon_wishlist_pricewatch/config2.json
 /test_pypi_api.txt
+/amazon_wishlist_pricewatch/version.py
