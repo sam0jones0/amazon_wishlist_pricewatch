@@ -360,7 +360,7 @@ def main():
         == "https://www.amazon.co.uk/hz/wishlist/ls/S0M3C0D3"
     ):
         config_file_path = Path(Path(__file__).parent, "config.json").resolve()
-        print(f"You need to fill in the config file:\n{config_file_path}")
+        logger.error(f"You need to fill in the config file:\n{config_file_path}")
         sys.exit()
 
     page = pw.request_page()
