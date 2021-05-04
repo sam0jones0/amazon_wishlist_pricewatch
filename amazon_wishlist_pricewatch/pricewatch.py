@@ -141,7 +141,7 @@ class PriceWatch:
                         asin=asin,
                     )
                 except (KeyError, TypeError) as e:
-                    logger.error("Failed to parse a wishlist item.")
+                    logger.warning("Failed to parse a wishlist item.")
 
             # Check for pagination / next page of wishlist.
             see_more = soup.find(
