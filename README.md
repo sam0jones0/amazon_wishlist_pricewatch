@@ -7,13 +7,13 @@ This package will send you a notification (SMTP email and/or telegram) each time
 
 Pip install the package, fill in the configuration file and schedule to run with your preferred task scheduler. E.g. Windows Task Scheduler / launchd (Mac OS) / cron (Mac OS / Unix).
 
-Uses `requests` and `BeautifulSoup4`. No need for the overhead of a headless browser as all data can be gathered from the plain html.
+Uses the wonderful `requests` and `BeautifulSoup4`. No need for the overhead of a headless browser as all data can be gathered from the plain html.
 
 ## How It Works
 
-Once installed and configured, each time you run `pricewatch` your wishlist is downloaded and product data is parsed out for comparison with price data from previous runs. When a new lowest price for a product is seen you receive a notification and the new price is saved to json for future runs.
+Once installed and configured, each run of `pricewatch` downloads and stores your wishlist as JSON and does price comparisons against items seen in previous runs. When a new lowest price for a product is seen you receive a notification, and the new price is saved to JSON for future runs.
 
-Schedule the script to run as often as you like with Task Scheduler/launchd/cron and you're good to go.  
+Schedule the script to run as often as you like with Task Scheduler/launchd/cron, and you're good to go.  
 
 ## Getting Started
 
@@ -27,7 +27,6 @@ Install with pip (recommended):
 
 ```console 
   pip install amazon-wishlist-pricewatch
-  pip install python-telegram-bot
   pricewatch
 ```
 
@@ -53,7 +52,7 @@ Fill in the config file located at `amazon_wishlist_pricewatch/config.json`
 
 If you can't find it enter `pricewatch` (or `python3 ./pricewatch.py` if you cloned the repo) into your console. Location of the file will be printed.
 
-TODO: Link Detailed config file documentation below.
+Detailed config file documentation [here](#Config-File-Documentation).
 
 ### Test Notifications
 
@@ -99,11 +98,12 @@ More information on launchd [here](https://www.launchd.info/)
 
 #### Unix/Linux
 
-I assume you'll be fine. Perhaps use cron.
+I assume you'll be fine! Perhaps use cron.
+
 
 ## Config File Documentation
 
-Example config file contents:
+Annotated example config file contents:
 
 ```json 
   {
@@ -143,7 +143,7 @@ Set to "1" to have the script attempt to send a notification to each method spec
 
 ### Using Gmail
 
-If you have 2FA enabled you can [create an app password](https://support.google.com/accounts/answer/185833?hl=en) and put that in the `sending_email_pass`.
+If you have 2FA enabled you can [create an app password](https://support.google.com/accounts/answer/185833?hl=en) and put that in `sending_email_pass`.
 
 Not recommended, but you can use your usual Google account password if you [enable "Less secure app access"](https://support.google.com/accounts/answer/6010255?hl=en). I'd recommend creating a new Gmail account if you do this.
 
@@ -158,10 +158,20 @@ Not recommended, but you can use your usual Google account password if you [enab
 
 ### User Agent
 
-You don't need to change this. But you can. Enter "my user agent" into Google to see your browser's user agent.
+You don't need to change this, but you can. Enter "my user agent" into Google to see your browser's user agent.
 
-#
-#
-#
-#
-#
+## Questions, Suggestions and Bugs
+
+Feel free to open an issue [here](https://github.com/sam0jones0/amazon_wishlist_pricewatch/issues). 
+
+## Contributing / Development
+
+Contributions welcome. 
+
+Clone the repo and `pip install -r requirements_dev.txt` in a new virtual environment.
+
+Uses pytest for testing, Mypy for type checking, and black for code formatting.
+
+## License
+
+[MIT License](./LICENSE.txt)
