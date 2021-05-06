@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://github.com/sam0jones0/amazon_wishlist_pricewatch/blob/master/LICENSE.txt">
-    <img src="https://img.shields.io/pypi/l/amazon-wishlist-pricewatch"
+    <img src="https://img.shields.io/github/license/sam0jones0/amazon_wishlist_pricewatch"
       alt="MIT License" />
   </a>
   <a href="">
