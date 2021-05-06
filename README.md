@@ -6,14 +6,14 @@
 
 <p align="center">
   <a href="https://github.com/sam0jones0/amazon_wishlist_pricewatch/blob/master/LICENSE.txt">
-    <img src="https://img.shields.io/github/license/sam0jones0/amazon_wishlist_pricewatch"
+    <img src="https://img.shields.io/pypi/l/amazon_wishlist_pricewatch"
       alt="MIT License" />
   </a>
-  <a href="">
+  <a href="https://pypi.org/project/amazon-wishlist-pricewatch/">
     <img src="https://img.shields.io/pypi/v/amazon-wishlist-pricewatch"
       alt="PyPI" />
   </a>
-  <a href="">
+  <a href="https://pypi.org/project/amazon-wishlist-pricewatch/">
     <img src="https://img.shields.io/pypi/pyversions/amazon-wishlist-pricewatch"
       alt="PyPI" />
   </a>
