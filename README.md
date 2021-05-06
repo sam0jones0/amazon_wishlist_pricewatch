@@ -1,7 +1,25 @@
+<p align="center">
+  <img src="https://github.com/sam0jones0/amazon_wishlist_pricewatch/blob/master/blob/pricewatch_200.png">
+</p>
 
-# Amazon Wishlist Pricewatch
+<h1 align="center">Amazon Wishlist Pricewatch</h1>
 
-> Periodically check your public Amazon wishlist for price reductions.
+<p align="center">
+  <a href="https://github.com/sam0jones0/amazon_wishlist_pricewatch/blob/master/LICENSE.txt">
+    <img src="https://img.shields.io/pypi/l/amazon-wishlist-pricewatch"
+      alt="MIT License" />
+  </a>
+  <a href="">
+    <img src="https://img.shields.io/pypi/v/amazon-wishlist-pricewatch"
+      alt="PyPI" />
+  </a>
+  <a href="">
+    <img src="https://img.shields.io/pypi/pyversions/amazon-wishlist-pricewatch"
+      alt="PyPI" />
+  </a>
+</p>
+
+<p align="center"><i>Periodically check your public Amazon wishlist for price reductions.</i></p>
 
 This package will send you a notification (SMTP email and/or telegram) each time a product on your **publicly available** wishlist reaches a new lowest price. Price still not low enough? You'll only receive another notification for the same product when the price drops further.
 
