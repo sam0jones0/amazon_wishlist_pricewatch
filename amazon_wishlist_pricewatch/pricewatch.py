@@ -125,6 +125,11 @@ class PriceWatch:
                         "span", attrs={"class": "a-size-base"}
                     ).text.strip()
                     price = item["data-price"]
+                    # For out of stock items Amazon sets "data-price" price to
+                    # "-Infinity". We set price to sys.maxsize so an alert is
+                    # generated when the item is restocked.
+                    if price == "-Infinity":
+                        price = sys.maxsize
                     url = item.find("a", attrs={"class": "a-link-normal"})["href"]
 
                     # Asin found in li class attrs as part of a json string.
@@ -141,7 +146,9 @@ class PriceWatch:
                         asin=asin,
                     )
                 except (KeyError, TypeError) as e:
-                    logger.warning("Failed to parse a wishlist item.")
+                    logger.warning(
+                        "Failed to parse a wishlist item. Item may no longer be available."
+                    )
 
             # Check for pagination / next page of wishlist.
             see_more = soup.find(
@@ -213,7 +220,7 @@ class PriceWatch:
                     f"Success comparing prices. {len(new_cheaper_items)} reduced prices found."
                 )
             else:
-                logger.info("No items to compare.")
+                logger.info("Finished comparing prices. No price reductions.")
 
             return new_cheaper_items
 
@@ -376,11 +383,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-# TODO: Check for usages of wishlist.wishlist_dict["something"] instead of __getitem__.
-# TODO: More logging.
-# TODO: Run on startup option for readme: Startup folder shortcut / task sched
-# TODO: Google app passwords for docs/readme
-# TODO: Test on other country wishlists.
-# TODO: ?

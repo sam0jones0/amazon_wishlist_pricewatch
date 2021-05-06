@@ -1,13 +1,36 @@
 
 # Amazon Wishlist Pricewatch
 
-> Periodically check your public Amazon wishlist for price reductions. 
+> Periodically check your public Amazon wishlist for price reductions.
 
 This package will send you a notification (SMTP email and/or telegram) each time a product on your **publicly available** wishlist reaches a new lowest price. Price still not low enough? You'll only receive another notification for the same product when the price drops further.
 
 Pip install the package, fill in the configuration file and schedule to run with your preferred task scheduler. E.g. Windows Task Scheduler / launchd (Mac OS) / cron (Mac OS / Unix).
 
 Uses the wonderful `requests` and `BeautifulSoup4`. No need for the overhead of a headless browser as all data can be gathered from the plain html.
+
+## Table of Contents
+
+
+  * [How It Works](#how-it-works)
+  * [Getting Started](#getting-started)
+    + [Prerequisites](#prerequisites)
+    + [Installation](#installation)
+    + [Set Configuration](#set-configuration)
+    + [Test Notifications](#test-notifications)
+    + [Set Running Schedule](#set-running-schedule)
+      - [Windows](#windows)
+      - [Mac OS](#mac-os)
+      - [Unix/Linux](#unix-linux)
+  * [Config File Documentation](#config-file-documentation)
+    + [Notification Mode](#notification-mode)
+    + [Send Test Notification](#send-test-notification)
+    + [Using Gmail](#using-gmail)
+    + [Using Telegram](#using-telegram)
+    + [User Agent](#user-agent)
+  * [Questions, Suggestions and Bugs](#questions--suggestions-and-bugs)
+  * [Contributing / Development](#contributing---development)
+  * [License](#license)
 
 ## How It Works
 
@@ -174,4 +197,4 @@ Uses pytest for testing, Mypy for type checking, and black for code formatting.
 
 ## License
 
-[MIT License](./LICENSE.txt)
+[MIT License](./LICENSE.txt). Sam Jones
