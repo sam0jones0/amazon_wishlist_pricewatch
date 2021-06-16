@@ -214,5 +214,4 @@ def test_notification() -> None:
     )
 
 
-if __name__ == "__main__":
-    config = get_config()
+config = get_config()

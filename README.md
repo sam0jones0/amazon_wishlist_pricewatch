@@ -60,7 +60,7 @@ Schedule the script to run as often as you like with Task Scheduler/launchd/cron
 
 ### Prerequisites
 
-Python >=3.6
+Python >=3.8
 
 ### Installation
 
