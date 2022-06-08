@@ -158,7 +158,7 @@ Annotated example config file contents:
     "smtp_server": "YOUR-SMTP-SERVER (e.g. smtp.gmail.com)",
     "smtp_port": "YOUR-SMTP-SSL-PORT (e.g. 465 for gmail)",
     "sending_email": "SENDING EMAIL ADDRESS (e.g. example@gmail.com)",
-    "sending_email_pass": "SENDING EMAIL ADDRESS PASSWORD",
+    "sending_email_pass": "SENDING EMAIL ADDRESS PASSWORD (**App Password** if using Gmail)",
     "receiving_emails": [
       "person1@gmail.com",
       "person2@optional.com"
@@ -186,7 +186,7 @@ Set to "1" to have the script attempt to send a notification to each method spec
 
 If you have 2FA enabled you can [create an app password](https://support.google.com/accounts/answer/185833?hl=en) and put that in `sending_email_pass`.
 
-Not recommended, but you can use your usual Google account password if you [enable "Less secure app access"](https://support.google.com/accounts/answer/6010255?hl=en). I'd recommend creating a new Gmail account if you do this.
+~~Not recommended, but you can use your usual Google account password if you [enable "Less secure app access"](https://support.google.com/accounts/answer/6010255?hl=en). I'd recommend creating a new Gmail account if you do this.~~ Google no longer supports using account passwords. You must use an "App Password" as above.
 
 ### Using Telegram
 
